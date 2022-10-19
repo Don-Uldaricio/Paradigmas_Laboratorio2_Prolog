@@ -48,3 +48,20 @@ pixlistIsHex([FirstPixel|RestPixels]):-
 
 imageIsHexmap([_,_,_,Pixlist,_]):- 
 	pixlistIsHex(Pixlist).
+
+%---------- OTROS PREDICADOS --------------------
+
+% ---------------FLIPH ---------------------------------
+	
+pixelFlipH(Width,[[PosX,PosY],Color,Depth],[[NewPosX,PosY],Color,Depth]):-
+	NewPosX is (Width - PosX - 1).
+
+pixlistFlipH(_,[],[]).
+pixlistFlipH(Width,[FirstPixel|RestPixels],[NewPixel|RestPixels2]):- 
+	pixelFlipH(Width,FirstPixel,NewPixel),
+	pixlistFlipH(Width,RestPixels,RestPixels2).
+
+imageFlipH(I, I2):- 
+	image(Width,Height,PL1,I), 
+	pixlistFlipH(Width,PL1,PL2), 
+	image(Width,Height,PL2,I2).
