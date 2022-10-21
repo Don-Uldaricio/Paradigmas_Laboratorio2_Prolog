@@ -65,3 +65,18 @@ imageFlipH(I, I2):-
 	image(Width,Height,PL1,I), 
 	pixlistFlipH(Width,PL1,PL2), 
 	image(Width,Height,PL2,I2).
+
+% ------------------------ FLIPV -----------------
+
+pixelFlipV(Height,[[PosX,PosY],Color,Depth],[[PosX,NewPosY],Color,Depth]):-
+	NewPosY is (Height - PosY - 1).
+
+pixlistFlipV(_,[],[]).
+pixlistFlipV(Width,[FirstPixel|RestPixels],[NewPixel|RestPixels2]):- 
+	pixelFlipV(Width,FirstPixel,NewPixel),
+	pixlistFlipV(Width,RestPixels,RestPixels2).
+
+imageFlipV(Img1, Img2):- 
+	image(Width,Height,Pixlist1,Img1), 
+	pixlistFlipV(Width,Pixlist1,Pixlist2), 
+	image(Width,Height,Pixlist2,Img2).
