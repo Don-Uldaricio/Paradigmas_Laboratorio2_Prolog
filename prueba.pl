@@ -80,3 +80,26 @@ imageFlipV(Img1, Img2):-
 	image(Width,Height,Pixlist1,Img1), 
 	pixlistFlipV(Width,Pixlist1,Pixlist2), 
 	image(Width,Height,Pixlist2,Img2).
+
+% ---------------------- CROP ----------------------
+
+insideCrop(X1,Y1,X2,Y2,[[PosX,PosY],_,_]):-
+	between(X1,X2,PosX),
+	between(Y1,Y2,PosY).
+
+filterCrop(X1,Y1,X2,Y2,L1,L2):-
+	include(insideCrop(X1,Y1,X2,Y2),L1,L2).
+
+pixlistCrop(_,_,_,_,[],[]).
+pixlistCrop(X1,Y1,X2,Y2,Pixlist1,Pixlist2):-
+	filterCrop(X1,Y1,X2,Y2,Pixlist1,Pixlist2).
+
+newSize(X1,Y1,X2,Y2,NewWidth,NewHeight):-
+	NewWidth is (X2 - X1 + 1),
+	NewHeight is (Y2 - Y1 + 1).
+
+imageCrop(Img1, X1, Y1, X2, Y2, Img2):-
+	image(_,_,Pixlist1,Img1),
+	pixlistCrop(X1,Y1,X2,Y2,Pixlist1,Pixlist2),
+	newSize(X1,Y1,X2,Y2,NewWidth,NewHeight),
+	image(NewWidth,NewHeight,Pixlist2,Img2).
