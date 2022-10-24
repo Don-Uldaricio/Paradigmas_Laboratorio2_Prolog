@@ -103,3 +103,22 @@ imageCrop(Img1, X1, Y1, X2, Y2, Img2):-
 	pixlistCrop(X1,Y1,X2,Y2,Pixlist1,Pixlist2),
 	newSize(X1,Y1,X2,Y2,NewWidth,NewHeight),
 	image(NewWidth,NewHeight,Pixlist2,Img2).
+
+%pixbit(0,0,1,10,PA),pixbit(0,1,0,20,PB),pixbit(1,0,0,30,PC),pixbit(1,1,1,4,PD),pixbit(2,0,1,4,PE),pixbit(2,1,1,4,PF),image(3,2,[PA,PB,PC,PD,PE,PF],I1),imageCrop(I1,0,0,1,1,I2).
+%pixrgb(0,0,1,45,200,10,PA),pixrgb(0,1,123,54,65,20,PB),pixlistRGBtoHex([PA,PB],L).
+
+% ----------------------- RGB to HEX -----------------
+
+pixlistRGBtoHex([],[]).
+pixlistRGBtoHex([[[PosX,PosY],RGBColor,Depth]|RestPixels],[[[PosX,PosY],HexColor,Depth]|RestPixels2]):-
+	hex_bytes(HexLowCase,RGBColor),
+	string_upper(HexLowCase,HexUpperCase),
+	string_concat("#",HexUpperCase,HexColor),
+	pixlistRGBtoHex(RestPixels,RestPixels2).
+
+imageRGBtoHex(I1,I2):-
+	image(Width,Height,Pixlist1,I1),
+	imageIsPixmap(I1),
+	pixlistRGBtoHex(Pixlist1,Pixlist2),
+	image(Width,Height,Pixlist2,I2),
+	imageIsHexmap(I2).
