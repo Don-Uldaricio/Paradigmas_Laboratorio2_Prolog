@@ -122,3 +122,48 @@ imageRGBtoHex(I1,I2):-
 	pixlistRGBtoHex(Pixlist1,Pixlist2),
 	image(Width,Height,Pixlist2,I2),
 	imageIsHexmap(I2).
+
+% ------------- Histogram ---------------------
+
+%pixbit(0,0,1,10,PA),pixbit(0,1,0,20,PB),pixbit(1,0,0,30,PC),pixbit(1,1,1,4,PD),pixbit(2,0,1,4,PE),pixbit(2,1,1,4,PF),imageColors([PA,PB,PC,PD,PE,PF],CL).
+% colorFreq(0,[[[0,0],1,4],[[0,0],0,4],[[0,0],0,4],[[0,0],1,4],[[0,0],1,4],[[0,0],1,4]],CL).
+% colorFreqList([0,1],[[[0,0],1,4],[[0,0],0,4],[[0,0],0,4],[[0,0],1,4],[[0,0],1,4],[[0,0],1,4]],CL).
+
+imageColors([],[]).
+imageColors([[_,Color,_]|RestPixels],[Color|RestColors]):-
+	imageColors(RestPixels,RestColors).
+
+removeDuplicatedColors([],[]).
+removeDuplicatedColors([FirstColor|RestColors],ColorList):-
+	member(FirstColor,RestColors), !,
+	removeDuplicatedColors(RestColors,ColorList).
+removeDuplicatedColors([FirstColor|RestColors],[FirstColor|ColorList]):-
+	removeDuplicatedColors(RestColors,ColorList).
+
+colorFreqList([],_,[]).
+colorFreqList([FirstColor|RestColors],Pixlist,[ColorCount|RestColorCount]):-
+	colorFreq(FirstColor,Pixlist,ColorCount),
+	colorFreqList(RestColors,Pixlist,RestColorCount).
+
+colorFreq(_,[],0).
+colorFreq(Color,[[_,Color,_]|RestPixels],ColorCount):-
+	!, colorFreq(Color,RestPixels,ColorCount2),
+	ColorCount is (ColorCount2 + 1).
+colorFreq(Color,[_|RestPixels],ColorCount):-
+	colorFreq(Color, RestPixels, ColorCount).
+
+histogram([],[],[]).
+histogram([FirstColor|RestColors],[FirstFreq|RestFreq],[[FirstColor,FirstFreq]|RestElements]):-
+	histogram(RestColors,RestFreq,RestElements).
+
+imageToHistogram(Image, Histogram):-
+	image(_,_,Pixlist,Image),
+	imageColors(Pixlist,ImageColors),
+	removeDuplicatedColors(ImageColors,ColorList),
+	colorFreqList(ColorList,Pixlist,ColorFreqList),
+	histogram(ColorList,ColorFreqList,Histogram).
+
+%histogram([0,1],[2,4],F).
+%pixbit(0,0,1,10,PA),pixbit(0,1,0,20,PB),pixbit(1,0,0,30,PC),pixbit(1,1,1,4,PD),pixbit(2,0,1,4,PE),pixbit(2,1,1,4,PF),image(1,1,[PA,PB,PC,PD,PE,PF],I),imageToHistogram(I,H).
+%pixrgb(0,0,1,45,200,10,PA),pixrgb(0,1,123,54,65,20,PB),pixrgb(0,0,123,54,65,10,PC),pixrgb(0,1,12,14,20,20,PD),image(1,1,[PA,PB,PC,PD],I),imageToHistogram(I,H).
+
