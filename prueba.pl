@@ -68,6 +68,12 @@ pixlistIsHex([FirstPixel|RestPixels]):-
 imageIsHexmap([_,_,_,Pixlist,_]):- 
 	pixlistIsHex(Pixlist).
 
+% ------------ IsCompressed -------------------------
+
+imageIsCompressed([Width,Height,[CompressedColor],Pixlist,CompressedPixels]):-
+	image(_,_,_,[Width,Height,[CompressedColor],Pixlist,CompressedPixels]).
+	
+
 %---------- OTROS PREDICADOS --------------------
 
 % ---------------FLIPH ---------------------------------
