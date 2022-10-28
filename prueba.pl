@@ -167,3 +167,17 @@ imageToHistogram(Image, Histogram):-
 %pixbit(0,0,1,10,PA),pixbit(0,1,0,20,PB),pixbit(1,0,0,30,PC),pixbit(1,1,1,4,PD),pixbit(2,0,1,4,PE),pixbit(2,1,1,4,PF),image(1,1,[PA,PB,PC,PD,PE,PF],I),imageToHistogram(I,H).
 %pixrgb(0,0,1,45,200,10,PA),pixrgb(0,1,123,54,65,20,PB),pixrgb(0,0,123,54,65,10,PC),pixrgb(0,1,12,14,20,20,PD),image(1,1,[PA,PB,PC,PD],I),imageToHistogram(I,H).
 
+% ------------- ROTATE 90 -----------------
+
+% pixrgb(0,0,1,45,200,10,PA),pixrgb(0,1,123,54,65,20,PB),pixlistRotate90(2,[PA,PB],L).
+
+pixlistRotate90(_,[],[]).
+pixlistRotate90(Height,[[[PosX,PosY],Color,Depth]|RestPixels],[[[NewPosX,NewPosY],Color,Depth]|RestPixels2]):-
+	NewPosX is (Height - 1 - PosY),
+	NewPosY is PosX,
+	pixlistRotate90(Height,RestPixels,RestPixels2).
+
+imageRotate90(I1,I2):-
+	image(Width,Height,Pixlist1,I1),
+	pixlistRotate90(Height,Pixlist1,Pixlist2),
+	image(Height,Width,Pixlist2,I2).
