@@ -1,29 +1,48 @@
-pixbit(PosX, PosY, Bit, Depth, [[PosX, PosY], Bit, Depth]) :- 
+pixbit(PosX,PosY,Bit,Depth,[[PosX,PosY],Bit,Depth]) :- 
 	integer(PosX), 0=<PosX,
 	integer(PosY), 0=<PosY,
-	integer(Bit), (Bit=0 ; Bit=1),
+	bitColor(Bit),
 	integer(Depth), 0=<Depth.
 
-pixrgb(PosX, PosY, R, G, B, Depth, [[PosX, PosY], [R, G, B], Depth]) :-
+pixrgb(PosX,PosY,R,G,B,Depth,[[PosX,PosY],[R,G,B],Depth]) :-
 	integer(PosX), 0=<PosX,
 	integer(PosY), 0=<PosY,
-	integer(R), 0=<R, R=<255,
-	integer(G), 0=<G, G=<255,
-	integer(B), 0=<B, B=<255,
+	rgbColor([R,G,B]),
 	integer(Depth), 0=<Depth.
 
-pixhex(PosX, PosY, Hex, Depth, [[PosX, PosY], Hex, Depth]) :-
+pixhex(PosX,PosY,HexColor,Depth,[[PosX,PosY],HexColor,Depth]) :-
 	integer(PosX), 0=<PosX,
 	integer(PosY), 0=<PosY,
-	string(Hex), string_length(Hex,7),
+	hexColor(HexColor),
 	integer(Depth), 0=<Depth.
 
+bitColor(Bit):-
+	(Bit is 0; Bit is 1).
 
-% ---------------------------------------------------
+rgbColor([R,G,B]):-
+	integer(R), between(0, 255, R),
+	integer(G), between(0, 255, G),
+	integer(B), between(0, 255, B).
 
-image(Width, Height, Pixlist, [Width, Height, [], Pixlist, []]) :-
+hexColor(HexColor):-
+	string(HexColor),
+	string_length(HexColor,7),
+	sub_string(HexColor,0,1,6,"#").
+
+
+% ----------------------- CONSTRUCTOR ----------------------------
+
+image(Width,Height,Pixlist,[Width,Height,[CompressedColor],Pixlist,CompressedPixels]):-
 	integer(Width), 0=<Width,
-	integer(Height), 0=<Height.
+	integer(Height), 0=<Height,
+	(pixlistIsBit(Pixlist); pixlistIsRGB(Pixlist); pixlistIsHex(Pixlist)),
+	(bitColor(CompressedColor);rgbColor(CompressedColor);hexColor(CompressedColor)),
+	is_list(CompressedPixels).
+
+image(Width,Height,Pixlist,[Width,Height,[],Pixlist,[]]) :-
+	integer(Width), 0=<Width,
+	integer(Height), 0=<Height,
+	(pixlistIsBit(Pixlist); pixlistIsRGB(Pixlist); pixlistIsHex(Pixlist)).
 
 pixlistIsBit([]). 
 pixlistIsBit([FirstPixel|RestPixels]):- 
