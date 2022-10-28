@@ -181,3 +181,49 @@ imageRotate90(I1,I2):-
 	image(Width,Height,Pixlist1,I1),
 	pixlistRotate90(Height,Pixlist1,Pixlist2),
 	image(Height,Width,Pixlist2,I2).
+
+% ------------------- COMPRESS ---------------------
+
+mostFreqColor([],[],0,[]).
+mostFreqColor([FirstColor|RestColors],[FirstFreq|RestFreq],Max,Color):-
+	mostFreqColor(RestColors,RestFreq,TailMax,_),
+	FirstFreq > TailMax,
+	Max is FirstFreq,
+	Color = FirstColor.
+mostFreqColor([_|RestColors],[FirstFreq|RestFreq],Max,Color):-
+	mostFreqColor(RestColors,RestFreq,TailMax,TailColor),
+	FirstFreq =< TailMax,
+	Max is TailMax,
+	Color = TailColor.
+
+%mostFreqColor([0,1],[2,5],Max,Color).
+
+removeMostFreqColor(_,[],[]).
+removeMostFreqColor(Color,[[_,Color,_]|RestPixels],RestPixels2):-
+	removeMostFreqColor(Color,RestPixels,RestPixels2).
+removeMostFreqColor(Color,[[[PosX,PosY],Color2,Depth]|RestPixels],[[[PosX,PosY],Color2,Depth]|RestPixels2]):-
+	Color2 \= Color,
+	removeMostFreqColor(Color,RestPixels,RestPixels2).
+
+compressedPixels(_,[],[]).
+compressedPixels(Color,[[[PosX,PosY],Color,Depth]|RestPixels],[[PosX,PosY,Depth]|RestCompressedPixels]):-
+	compressedPixels(Color,RestPixels,RestCompressedPixels).
+compressedPixels(Color,[[_,Color2,_]|RestPixels],RestCompressedPixels):-
+	Color2 \= Color,
+	compressedPixels(Color,RestPixels,RestCompressedPixels).
+
+
+%pixbit(0,0,1,10,PA),pixbit(0,1,0,20,PB),pixbit(1,0,0,30,PC),pixbit(1,1,1,4,PD),pixbit(2,0,1,4,PE),removeMostFreqColor(0,[PA,PB,PC,PD,PE],CL).
+%pixbit(0,0,1,10,PA),pixbit(0,1,0,20,PB),pixbit(1,0,0,30,PC),pixbit(1,1,1,4,PD),pixbit(2,0,1,4,PE),compressedPixels(1,[PA,PB,PC,PD,PE],CP).
+%pixbit(0,0,1,10,PA),pixbit(0,1,0,20,PB),pixbit(1,0,0,30,PC),pixbit(1,1,1,4,PD),pixbit(2,0,1,4,PE),image(1,1,[PA,PB,PC,PD,PE],I),imageCompress(I,I2).
+
+
+imageCompress(Image,[Width,Height,[MostFreqColor],Pixlist2,CompressedPixels]):-
+	image(Width,Height,Pixlist,Image),
+	imageColors(Pixlist,ImageColors),
+	removeDuplicatedColors(ImageColors,ColorList),
+	colorFreqList(ColorList,Pixlist,ColorFreqList),
+	mostFreqColor(ColorList,ColorFreqList,_,MostFreqColor),
+	removeMostFreqColor(MostFreqColor,Pixlist,Pixlist2),
+	compressedPixels(MostFreqColor,Pixlist,CompressedPixels),
+	image(_,_,_,[Width,Height,[MostFreqColor],Pixlist2,CompressedPixels]).
