@@ -283,3 +283,85 @@ invertPixelRGB([[PosX,PosY],[R,G,B],Depth],[[PosX,PosY],[NewR,NewG,NewB],Depth])
 imageInvertColorRGB(Pixel,NewPixel):-
 	pixrgb(_,_,_,_,_,_,Pixel),
 	invertPixelRGB(Pixel,NewPixel).
+
+% ------------------- imageString ------------------------
+
+pixlistToString(_,Height,Row,[[[_,_],_,_]|_],_,""):-
+	Row =:= Height.
+pixlistToString(Width,Height,Row,[[[PosX,PosY],Color,_]|RestPixels],Pixlist,String):-
+	PosX =\= (Width - 1),
+	Row =:= PosY,
+	term_string(Color,StringColor),
+	string_concat(StringColor," ",StringColor2),
+	pixlistToString(Width,Height,Row,RestPixels,Pixlist,String2),
+	string_concat(StringColor2,String2,String).
+pixlistToString(Width,Height,Row,[[[_,PosY],_,_]|RestPixels],Pixlist,String):-
+	Row =\= PosY,
+	pixlistToString(Width,Height,Row,RestPixels,Pixlist,String).
+pixlistToString(Width,Height,Row,[[[PosX,PosY],Color,_]|_],Pixlist,String):-
+	PosX =:= (Width - 1),
+	Row =:= PosY,
+	term_string(Color,StringColor),
+	string_concat(StringColor,"\n",StringColor2),
+	NextRow is (Row + 1),
+	pixlistToString(Width,Height,NextRow,Pixlist,Pixlist,String2),
+	string_concat(StringColor2,String2,String).
+
+%pixhex(0,0,"#AC67D8",10,PA),pixhex(0,1,"#0198AB",20,PB),pixhex(1,0,"#98FEB1",10,PC),pixhex(1,1,"#101010",20,PD),image(2,2,[PA,PB,PC,PD],I),imageToString(I,S).
+%pixbit(0,0,1,10,PA),pixbit(0,1,0,20,PB),pixbit(1,0,0,30,PC),pixbit(1,1,0,13,PD),image(2,2,[PA,PB,PC,PD],I),imageToString(I,S).
+%pixrgb(1,1,1,45,200,10,PA),pixrgb(0,1,123,54,65,20,PB),pixrgb(1,0,10,104,65,10,PC),pixrgb(0,0,12,14,20,20,PD),image(2,2,[PA,PB,PC,PD],I),imageToString(I,S).
+
+imageToString([Width,Height,[],Pixlist,[]],String):-
+	image(Width,Height,Pixlist,[Width,Height,[],Pixlist,[]]),
+	sort(Pixlist,SortPixlist),
+	pixlistToString(Width,Height,0,SortPixlist,SortPixlist,String).
+
+
+% --------------------- DepthLayers -----------------------
+
+%pixbit(0,0,1,10,PA),pixbit(0,1,0,10,PB),pixbit(1,0,0,30,PC),pixbit(1,1,0,13,PD),imageDepths([PA,PB,PC,PD],ID).
+%pixbit(0,0,1,10,PA),pixbit(0,1,0,10,PB),pixbit(1,0,0,30,PC),pixbit(1,1,0,13,PD),imageDepths([PA,PB,PC,PD],ID),removeDuplicatedDepths(ID,DL).
+%pixbit(0,0,1,10,PA),pixbit(0,1,0,10,PB),pixbit(1,0,0,30,PC),pixbit(1,1,0,13,PD),image(2,2,[PA,PB,PC,PD],I),imageDepthLayers(I,[A,B,C]).
+
+%pixrgb(0,0,1,45,200,10,PA),pixrgb(0,1,123,54,65,20,PB),pixrgb(1,0,10,104,65,10,PC),pixrgb(1,1,12,14,20,20,PD),imageDepths([PA,PB,PC,PD],ID),removeDuplicatedDepths(ID,DL).
+%pixrgb(0,0,1,45,200,10,PA),pixrgb(0,1,123,54,65,20,PB),pixrgb(1,0,10,104,65,10,PC),pixrgb(1,1,12,14,20,20,PD),changeToWhitePixRGBList(10,[PA,PB,PC,PD],NPL).
+%pixrgb(0,0,1,45,200,10,PA),pixrgb(0,1,123,54,65,20,PB),pixrgb(1,0,10,104,65,10,PC),pixrgb(1,1,12,14,20,20,PD),image(2,2,[PA,PB,PC,PD],I),imageDepthLayers(I,[A,B]).
+
+%pixhex(0,0,"#AC67D8",10,PA),pixhex(0,1,"#0198AB",20,PB),pixhex(1,0,"#98FEB1",10,PC),pixhex(1,1,"#101010",20,PD),image(2,2,[PA,PB,PC,PD],I),imageDepthLayers(I,DI).
+
+imageDepths([],[]).
+imageDepths([[_,_,Depth]|RestPixels],[Depth|RestDepths]):-
+	imageDepths(RestPixels,RestDepths).
+
+removeDuplicatedDepths([],[]).
+removeDuplicatedDepths([FirstDepth|RestDepths],DepthList):-
+	member(FirstDepth,RestDepths), !,
+	removeDuplicatedDepths(RestDepths,DepthList).
+removeDuplicatedDepths([FirstDepth|RestDepths],[FirstDepth|DepthList]):-
+	removeDuplicatedDepths(RestDepths,DepthList).
+
+changeToWhitePixlist(_,[],[]).
+changeToWhitePixlist(NewDepth,[[[PosX,PosY],Color,OldDepth]|RestPixels],[[[PosX,PosY],1,NewDepth]|RestPixels2]):-
+	pixbit(_,_,_,_,[[PosX,PosY],Color,OldDepth]),
+	NewDepth =\= OldDepth,
+	changeToWhitePixlist(NewDepth,RestPixels,RestPixels2).
+changeToWhitePixlist(NewDepth,[[[PosX,PosY],Color,OldDepth]|RestPixels],[[[PosX,PosY],[255,255,255],NewDepth]|RestPixels2]):-
+	pixrgb(_,_,_,_,_,_,[[PosX,PosY],Color,OldDepth]),
+	NewDepth =\= OldDepth,
+	changeToWhitePixlist(NewDepth,RestPixels,RestPixels2).
+changeToWhitePixlist(NewDepth,[[[PosX,PosY],Color,OldDepth]|RestPixels],[[[PosX,PosY],"#FFFFFF",NewDepth]|RestPixels2]):-
+	pixhex(_,_,_,_,[[PosX,PosY],Color,OldDepth]),
+	NewDepth =\= OldDepth,
+	changeToWhitePixlist(NewDepth,RestPixels,RestPixels2).
+changeToWhitePixlist(Depth,[[[PosX,PosY],Color,Depth]|RestPixels],[[[PosX,PosY],Color,Depth]|RestPixels2]):-
+	changeToWhitePixlist(Depth,RestPixels,RestPixels2).
+
+depthImages(_,_,_,[],[]).
+depthImages(Width,Height,Pixlist,[FirstDepth|RestDepths],[[Width,Height,[],Pixlist2,[]]|RestImages]):-
+	changeToWhitePixlist(FirstDepth,Pixlist,Pixlist2),
+	depthImages(Width,Height,Pixlist,RestDepths,RestImages).
+
+imageDepthLayers([Width,Height,[],Pixlist,[]],ImageList):-
+	imageDepths(Pixlist,ImageDepths),
+	removeDuplicatedDepths(ImageDepths,DepthList),
+	depthImages(Width,Height,Pixlist,DepthList,ImageList).
