@@ -86,10 +86,10 @@ pixlistFlipH(Width,[FirstPixel|RestPixels],[NewPixel|RestPixels2]):-
 	pixelFlipH(Width,FirstPixel,NewPixel),
 	pixlistFlipH(Width,RestPixels,RestPixels2).
 
-imageFlipH(I, I2):- 
-	image(Width,Height,PL1,I), 
-	pixlistFlipH(Width,PL1,PL2), 
-	image(Width,Height,PL2,I2).
+imageFlipH(Image,Image2):- 
+	image(Width,Height,Pixlist,Image), 
+	pixlistFlipH(Width,Pixlist,Pixlist2), 
+	image(Width,Height,Pixlist2,Image2).
 
 % ------------------------ FLIPV -----------------
 
@@ -97,14 +97,14 @@ pixelFlipV(Height,[[PosX,PosY],Color,Depth],[[PosX,NewPosY],Color,Depth]):-
 	NewPosY is (Height - PosY - 1).
 
 pixlistFlipV(_,[],[]).
-pixlistFlipV(Width,[FirstPixel|RestPixels],[NewPixel|RestPixels2]):- 
-	pixelFlipV(Width,FirstPixel,NewPixel),
-	pixlistFlipV(Width,RestPixels,RestPixels2).
+pixlistFlipV(Height,[FirstPixel|RestPixels],[NewPixel|RestPixels2]):- 
+	pixelFlipV(Height,FirstPixel,NewPixel),
+	pixlistFlipV(Height,RestPixels,RestPixels2).
 
-imageFlipV(Img1, Img2):- 
-	image(Width,Height,Pixlist1,Img1), 
-	pixlistFlipV(Width,Pixlist1,Pixlist2), 
-	image(Width,Height,Pixlist2,Img2).
+imageFlipV(Image,Image2):- 
+	image(Width,Height,Pixlist,Image), 
+	pixlistFlipV(Height,Pixlist,Pixlist2), 
+	image(Width,Height,Pixlist2,Image2).
 
 % ---------------------- CROP ----------------------
 
@@ -112,22 +112,23 @@ insideCrop(X1,Y1,X2,Y2,[[PosX,PosY],_,_]):-
 	between(X1,X2,PosX),
 	between(Y1,Y2,PosY).
 
-filterCrop(X1,Y1,X2,Y2,L1,L2):-
-	include(insideCrop(X1,Y1,X2,Y2),L1,L2).
-
 pixlistCrop(_,_,_,_,[],[]).
-pixlistCrop(X1,Y1,X2,Y2,Pixlist1,Pixlist2):-
-	filterCrop(X1,Y1,X2,Y2,Pixlist1,Pixlist2).
+pixlistCrop(X1,Y1,X2,Y2,[FirstPixel|RestPixels],[FirstPixel|RestPixels2]):-
+	insideCrop(X1,Y1,X2,Y2,FirstPixel),
+	pixlistCrop(X1,Y1,X2,Y2,RestPixels,RestPixels2).
+pixlistCrop(X1,Y1,X2,Y2,[FirstPixel|RestPixels],RestPixels2):-
+	not(insideCrop(X1,Y1,X2,Y2,FirstPixel)),
+	pixlistCrop(X1,Y1,X2,Y2,RestPixels,RestPixels2).
 
 newSize(X1,Y1,X2,Y2,NewWidth,NewHeight):-
 	NewWidth is (X2 - X1 + 1),
 	NewHeight is (Y2 - Y1 + 1).
 
-imageCrop(Img1, X1, Y1, X2, Y2, Img2):-
-	image(_,_,Pixlist1,Img1),
-	pixlistCrop(X1,Y1,X2,Y2,Pixlist1,Pixlist2),
+imageCrop(Image, X1, Y1, X2, Y2, Image2):-
+	image(_,_,Pixlist,Image),
+	pixlistCrop(X1,Y1,X2,Y2,Pixlist,Pixlist2),
 	newSize(X1,Y1,X2,Y2,NewWidth,NewHeight),
-	image(NewWidth,NewHeight,Pixlist2,Img2).
+	image(NewWidth,NewHeight,Pixlist2,Image2).
 
 %pixbit(0,0,1,10,PA),pixbit(0,1,0,20,PB),pixbit(1,0,0,30,PC),pixbit(1,1,1,4,PD),pixbit(2,0,1,4,PE),pixbit(2,1,1,4,PF),image(3,2,[PA,PB,PC,PD,PE,PF],I1),imageCrop(I1,0,0,1,1,I2).
 %pixrgb(0,0,1,45,200,10,PA),pixrgb(0,1,123,54,65,20,PB),pixlistRGBtoHex([PA,PB],L).
@@ -141,12 +142,11 @@ pixlistRGBtoHex([[[PosX,PosY],RGBColor,Depth]|RestPixels],[[[PosX,PosY],HexColor
 	string_concat("#",HexUpperCase,HexColor),
 	pixlistRGBtoHex(RestPixels,RestPixels2).
 
-imageRGBtoHex(I1,I2):-
-	image(Width,Height,Pixlist1,I1),
-	imageIsPixmap(I1),
-	pixlistRGBtoHex(Pixlist1,Pixlist2),
-	image(Width,Height,Pixlist2,I2),
-	imageIsHexmap(I2).
+imageRGBtoHex(Image,Image2):-
+	image(Width,Height,Pixlist,Image),
+	imageIsPixmap(Image),
+	pixlistRGBtoHex(Pixlist,Pixlist2),
+	image(Width,Height,Pixlist2,Image2).
 
 % ------------- Histogram ---------------------
 
@@ -202,10 +202,10 @@ pixlistRotate90(Height,[[[PosX,PosY],Color,Depth]|RestPixels],[[[NewPosX,NewPosY
 	NewPosY is PosX,
 	pixlistRotate90(Height,RestPixels,RestPixels2).
 
-imageRotate90(I1,I2):-
-	image(Width,Height,Pixlist1,I1),
-	pixlistRotate90(Height,Pixlist1,Pixlist2),
-	image(Height,Width,Pixlist2,I2).
+imageRotate90(Image,Image2):-
+	image(Width,Height,Pixlist,Image),
+	pixlistRotate90(Height,Pixlist,Pixlist2),
+	image(Height,Width,Pixlist2,Image2).
 
 % ------------------- COMPRESS ---------------------
 
@@ -252,3 +252,29 @@ imageCompress(Image,[Width,Height,[MostFreqColor],Pixlist2,CompressedPixels]):-
 	removeMostFreqColor(MostFreqColor,Pixlist,Pixlist2),
 	compressedPixels(MostFreqColor,Pixlist,CompressedPixels),
 	image(_,_,_,[Width,Height,[MostFreqColor],Pixlist2,CompressedPixels]).
+
+% ------------------ CHANGEPIXEL ---------------------
+
+%pixbit(0,0,1,10,PA),pixbit(0,1,0,20,PB),pixbit(1,0,0,30,PC),changePixel([PA,PB,PC],[[0,1],1,567],PL).
+%pixbit(0,0,1,10,PA),pixbit(0,1,0,20,PB),pixbit(1,0,0,30,PC),pixbit(1,1,0,13,PD),image(2,2,[PA,PB,PC,PD],I),imageChangePixel(I,[[0,1],1,540],I2).
+
+changePixel([],_,[]).
+changePixel([[[PosX,PosY],_,_]|RestPixels],[[PosX,PosY],Color,Depth],[[[PosX,PosY],Color,Depth]|RestPixels]).
+changePixel([FirstPixel|RestPixels],Pixel,[FirstPixel|RestPixels2]):-
+	changePixel(RestPixels,Pixel,RestPixels2).
+
+imageChangePixel([Width,Height,[],Pixlist,[]], Pixel, [Width,Height,[],Pixlist2,[]]):-
+	image(_,_,_,[Width,Height,[],Pixlist,[]]),
+	changePixel(Pixlist,Pixel,Pixlist2),
+	image(_,_,_,[Width,Height,[],Pixlist2,[]]).
+
+% -------------------- invertColorRGB --------------------------
+
+invertPixelRGB([[PosX,PosY],[R,G,B],Depth],[[PosX,PosY],[NewR,NewG,NewB],Depth]):-
+	NewR is (255 - R),
+	NewG is (255 - G),
+	NewB is (255 - B).
+
+imageInvertColorRGB(Pixel,NewPixel):-
+	pixrgb(_,_,_,_,_,_,Pixel),
+	invertPixelRGB(Pixel,NewPixel).
