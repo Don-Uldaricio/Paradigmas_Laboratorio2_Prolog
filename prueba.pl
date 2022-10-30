@@ -205,7 +205,8 @@ pixlistRotate90(Height,[[[PosX,PosY],Color,Depth]|RestPixels],[[[NewPosX,NewPosY
 imageRotate90(Image,Image2):-
 	image(Width,Height,Pixlist,Image),
 	pixlistRotate90(Height,Pixlist,Pixlist2),
-	image(Height,Width,Pixlist2,Image2).
+	sort(Pixlist2,Pixlist3)
+	image(Height,Width,Pixlist3,Image2).
 
 % ------------------- COMPRESS ---------------------
 
