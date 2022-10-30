@@ -113,8 +113,9 @@ insideCrop(X1,Y1,X2,Y2,[[PosX,PosY],_,_]):-
 	between(Y1,Y2,PosY).
 
 pixlistCrop(_,_,_,_,[],[]).
-pixlistCrop(X1,Y1,X2,Y2,[FirstPixel|RestPixels],[FirstPixel|RestPixels2]):-
-	insideCrop(X1,Y1,X2,Y2,FirstPixel),
+pixlistCrop(X1,Y1,X2,Y2,[[[PosX,PosY],Color,Depth]|RestPixels],[[[NewPosX,NewPosY],Color,Depth]|RestPixels2]):-
+	insideCrop(X1,Y1,X2,Y2,[[PosX,PosY],Color,Depth]),
+	NewPosX is (PosX - X1), NewPosY is (PosY - Y1),
 	pixlistCrop(X1,Y1,X2,Y2,RestPixels,RestPixels2).
 pixlistCrop(X1,Y1,X2,Y2,[FirstPixel|RestPixels],RestPixels2):-
 	not(insideCrop(X1,Y1,X2,Y2,FirstPixel)),
@@ -124,8 +125,11 @@ newSize(X1,Y1,X2,Y2,NewWidth,NewHeight):-
 	NewWidth is (X2 - X1 + 1),
 	NewHeight is (Y2 - Y1 + 1).
 
-imageCrop(Image, X1, Y1, X2, Y2, Image2):-
-	image(_,_,Pixlist,Image),
+imageCrop(Image,X1,Y1,X2,Y2,Image2):-
+	image(Width,Height,Pixlist,Image),
+	between(1,Width,X2), between(1,Width,X2), 
+	between(1,Height,Y1), between(1,Height,Y2), 
+	X1 =< X2, Y1 =< Y2,
 	pixlistCrop(X1,Y1,X2,Y2,Pixlist,Pixlist2),
 	newSize(X1,Y1,X2,Y2,NewWidth,NewHeight),
 	image(NewWidth,NewHeight,Pixlist2,Image2).
@@ -205,7 +209,7 @@ pixlistRotate90(Height,[[[PosX,PosY],Color,Depth]|RestPixels],[[[NewPosX,NewPosY
 imageRotate90(Image,Image2):-
 	image(Width,Height,Pixlist,Image),
 	pixlistRotate90(Height,Pixlist,Pixlist2),
-	sort(Pixlist2,Pixlist3)
+	sort(Pixlist2,Pixlist3),
 	image(Height,Width,Pixlist3,Image2).
 
 % ------------------- COMPRESS ---------------------
