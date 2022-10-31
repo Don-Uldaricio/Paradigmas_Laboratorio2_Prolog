@@ -365,3 +365,25 @@ imageDepthLayers([Width,Height,[],Pixlist,[]],ImageList):-
 	imageDepths(Pixlist,ImageDepths),
 	removeDuplicatedDepths(ImageDepths,DepthList),
 	depthImages(Width,Height,Pixlist,DepthList,ImageList).
+
+% ---------------------------- DECOMPRESS --------------------------
+
+% pixbit(0,0,1,10,PA),pixbit(1,1,0,10,PB),pixbit(1,0,0,30,PC),pixbit(0,1,0,13,PD),sort([PA,PB,PC,PD],L).
+% pixbit(0,0,1,10,PA),pixbit(1,1,0,10,PB),pixbit(1,0,0,30,PC),pixbit(0,1,0,13,PD),backPixelsToPixlist(1,[[2,2,3],[3,3,3],[4,4,3]],[PA,PB,PC,PD],L).
+
+backPixelsToPixlist(CompressedColor,CompressedPixels,Pixlist,FinalPixlist):-
+	decompressPixels(CompressedColor,CompressedPixels,DecompressedPixels),
+	append(DecompressedPixels,Pixlist,FinalPixlist).
+
+decompressPixels(_,[],[]).
+decompressPixels(CompressedColor,[[PosX,PosY,Depth]|RestCompressedPixels],[[[PosX,PosY],CompressedColor,Depth]|RestPixels]):-
+	decompressPixels(CompressedColor,RestCompressedPixels,RestPixels).
+
+imageDecompress([Width,Height,[CompressedColor],Pixlist,CompressedPixels],DecompressedImage):-
+	image(_,_,_,[Width,Height,[CompressedColor],Pixlist,CompressedPixels]),
+	backPixelsToPixlist(CompressedColor,CompressedPixels,Pixlist,Pixlist2),
+	sort(Pixlist2,SortPixlist),
+	image(Width,Height,SortPixlist,DecompressedImage).
+
+
+% pixbit(0,0,1,10,PA),pixbit(0,1,0,20,PB),pixbit(1,0,1,30,PC),pixbit(1,1,1,4,PD),image(2,2,[PA,PB,PC,PD],I),imageCompress(I,I2),imageDecompress(I2,I3).
