@@ -105,9 +105,6 @@ imageCompress(Image,Image2)
 changePixel(Pixlist,Pixel,Pixlist2)
 imageChangePixel(Image,Pixel,Image2)
 
-invertPixelRGB(Pixel,NewPixel)
-imageInvertColorRGB(Pixel,NewPixel)
-
 pixlistToString(Width,Height,0,Pixlist,Pixlist,String)
 imageToString(Image,String)
 

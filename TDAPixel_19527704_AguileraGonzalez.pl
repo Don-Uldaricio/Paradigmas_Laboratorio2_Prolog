@@ -26,6 +26,7 @@ pixhex(PosX,PosY,HexColor,Depth,Pixhex)
 bitColor(Bit)
 rgbColor([R,G,B])
 hexColor(HexColor)
+imageInvertColorRGB(Pixel,NewPixel)
 
 ---------------------------------------- METAS -------------------------------------------------
 
