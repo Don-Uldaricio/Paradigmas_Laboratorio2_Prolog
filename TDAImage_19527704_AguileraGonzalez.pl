@@ -1,4 +1,4 @@
-:- include(TDAPixel_19527704_AguileraGonzalez)
+:- include("TDAPixel_19527704_AguileraGonzalez.pl").
 
 /*
 ----------------------------------- TDA IMAGE --------------------------------------

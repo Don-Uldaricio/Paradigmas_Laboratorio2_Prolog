@@ -84,4 +84,4 @@ imageInvertColorRGB([[PosX,PosY],[R,G,B],Depth],[[PosX,PosY],[NewR,NewG,NewB],De
 	NewR is (255 - R),
 	NewG is (255 - G),
 	NewB is (255 - B),
-	pixrgb(_,_,_,_,_,_,[[PosX,PosY],[NewR,NewG,NewB],Depth]),.
+	pixrgb(_,_,_,_,_,_,[[PosX,PosY],[NewR,NewG,NewB],Depth]).
