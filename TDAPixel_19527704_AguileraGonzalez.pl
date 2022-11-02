@@ -78,15 +78,10 @@ hexColor(HexColor):-
 
 % ---------------------------------- MODIFICADORES ---------------------------------
 
-% Descripción: Predicado que cambia la información de un pixel de una imagen.
-changePixel([],_,[]).
-changePixel([[[PosX,PosY],_,_]|RestPixels],[[PosX,PosY],Color,Depth],[[[PosX,PosY],Color,Depth]|RestPixels]).
-changePixel([FirstPixel|RestPixels],Pixel,[FirstPixel|RestPixels2]):-
-	changePixel(RestPixels,Pixel,RestPixels2).
-
-% Descripción: Predicado que cambia la información del pixel de una imagen 
-%			   entregando una nueva imagen con este nuevo pixel.
-imageChangePixel([Width,Height,[],Pixlist,[]], Pixel, [Width,Height,[],Pixlist2,[]]):-
-	image(_,_,_,[Width,Height,[],Pixlist,[]]),
-	changePixel(Pixlist,Pixel,Pixlist2),
-	image(_,_,_,[Width,Height,[],Pixlist2,[]]).
+% Descripción: Predicado que invierte los canales RGB de un pixel pixrgb.
+imageInvertColorRGB([[PosX,PosY],[R,G,B],Depth],[[PosX,PosY],[NewR,NewG,NewB],Depth]):-
+	pixrgb(_,_,_,_,_,_,[[PosX,PosY],[R,G,B],Depth]),
+	NewR is (255 - R),
+	NewG is (255 - G),
+	NewB is (255 - B),
+	pixrgb(_,_,_,_,_,_,[[PosX,PosY],[NewR,NewG,NewB],Depth]),.
