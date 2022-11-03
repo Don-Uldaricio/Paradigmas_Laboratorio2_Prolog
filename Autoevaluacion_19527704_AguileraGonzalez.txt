@@ -1,0 +1,25 @@
+REQUERIMIENTOS NO FUNCIONALES     EVALUACIÓN
+Documentación						  1
+Organización						  0.75
+Historial							  0.75
+
+
+REQUERIMIENTOS FUNCIONALES        EVALUACIÓN
+TDAs							      1
+image								  1
+imageIsBitmap						  1
+imageIsPixmap				 	 	  1 
+imageIsHexmap						  1
+imageIsCompressed					  1
+imageFlipH							  1
+imageFlipV							  1
+imageCrop							  1
+imageRGBtoHex						  1
+imageToHistogram					  1
+imageRotate90						  1
+imageCompress 						  1
+imageChangePixel					  1
+imageinvertColorRGB					  1
+imageToString					      0.75
+imageDepthLayers					  1
+imageDecompress						  1

@@ -206,8 +206,8 @@ imageFlipV(Image,Image2):-
 imageCrop(Image,X1,Y1,X2,Y2,Image2):-
 	image(Width,Height,Pixlist,Image),
 	not(imageIsCompressed(Image)),
-	between(1,Width,X2), between(1,Width,X2), 
-	between(1,Height,Y1), between(1,Height,Y2), 
+	between(0,Width,X2), between(0,Width,X2), 
+	between(0,Height,Y1), between(0,Height,Y2), 
 	X1 =< X2, Y1 =< Y2,
 	pixlistCrop(X1,Y1,X2,Y2,Pixlist,Pixlist2),
 	newSize(X1,Y1,X2,Y2,NewWidth,NewHeight),
