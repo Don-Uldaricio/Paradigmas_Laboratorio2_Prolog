@@ -190,12 +190,14 @@ imageIsCompressed([Width,Height,[CompressedColor],Pixlist,CompressedPixels]):-
 % Descripción: Predicado que voltea una imagen horizontalmente.
 imageFlipH(Image,Image2):- 
 	image(Width,Height,Pixlist,Image), 
+	not(imageIsCompressed(Image)),
 	pixlistFlipH(Width,Pixlist,Pixlist2), 
 	image(Width,Height,Pixlist2,Image2).
 
 % Descripción: Predicado que voltea una imagen verticalmente.
 imageFlipV(Image,Image2):- 
-	image(Width,Height,Pixlist,Image), 
+	image(Width,Height,Pixlist,Image),
+	not(imageIsCompressed(Image)), 
 	pixlistFlipV(Height,Pixlist,Pixlist2), 
 	image(Width,Height,Pixlist2,Image2).
 
@@ -203,6 +205,7 @@ imageFlipV(Image,Image2):-
 %			   y entrega una nueva imagen con nuevas dimensiones y los pixeles dentro del corte.
 imageCrop(Image,X1,Y1,X2,Y2,Image2):-
 	image(Width,Height,Pixlist,Image),
+	not(imageIsCompressed(Image)),
 	between(1,Width,X2), between(1,Width,X2), 
 	between(1,Height,Y1), between(1,Height,Y2), 
 	X1 =< X2, Y1 =< Y2,
@@ -213,6 +216,7 @@ imageCrop(Image,X1,Y1,X2,Y2,Image2):-
 % Descripción: Predicado que cambia una imagen pixmap a hexmap.
 imageRGBtoHex(Image,Image2):-
 	image(Width,Height,Pixlist,Image),
+	not(imageIsCompressed(Image)),
 	imageIsPixmap(Image),
 	pixlistRGBtoHex(Pixlist,Pixlist2),
 	image(Width,Height,Pixlist2,Image2).
@@ -220,6 +224,7 @@ imageRGBtoHex(Image,Image2):-
 % Descripción: Entrega una lista del tipo [Color, Freq] para todos los colores de una imagen.
 imageToHistogram(Image, Histogram):-
 	image(_,_,Pixlist,Image),
+	not(imageIsCompressed(Image)),
 	imageColors(Pixlist,ImageColors),
 	removeDuplicatedColors(ImageColors,ColorList),
 	colorFreqList(ColorList,Pixlist,ColorFreqList),
@@ -228,6 +233,7 @@ imageToHistogram(Image, Histogram):-
 % Descripción: Predicado que entrega una nueva imagen tras rotar la imagen original en 90 grados en sentido horario (derecha).
 imageRotate90(Image,Image2):-
 	image(Width,Height,Pixlist,Image),
+	not(imageIsCompressed(Image)),
 	pixlistRotate90(Height,Pixlist,Pixlist2),
 	sort(Pixlist2,Pixlist3),
 	image(Height,Width,Pixlist3,Image2).
@@ -236,6 +242,7 @@ imageRotate90(Image,Image2):-
 %			   eliminando los pixeles que lo contienen.
 imageCompress(Image,[Width,Height,[MostFreqColor],Pixlist2,CompressedPixels]):-
 	image(Width,Height,Pixlist,Image),
+	not(imageIsCompressed(Image)),
 	imageColors(Pixlist,ImageColors),
 	removeDuplicatedColors(ImageColors,ColorList),
 	colorFreqList(ColorList,Pixlist,ColorFreqList),
@@ -260,6 +267,7 @@ imageChangePixel([Width,Height,[],Pixlist,[]], Pixel, [Width,Height,[],Pixlist2,
 % Descripción: Predicado que descomprime una imagen comprimida previamente.
 imageDecompress([Width,Height,[CompressedColor],Pixlist,CompressedPixels],DecompressedImage):-
 	image(_,_,_,[Width,Height,[CompressedColor],Pixlist,CompressedPixels]),
+	imageIsCompressed([Width,Height,[CompressedColor],Pixlist,CompressedPixels]),
 	backPixelsToPixlist(CompressedColor,CompressedPixels,Pixlist,Pixlist2),
 	sort(Pixlist2,SortPixlist),
 	image(Width,Height,SortPixlist,DecompressedImage).
